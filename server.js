@@ -74,11 +74,6 @@ app.get("/scrape", function(req, res){
     })
 });
 
-
-
-
-
-
 // 2: All: Send JSON response with all articles
 // app.get("/all", function(req, res) {
 //     // Query: In our database, go to the animals collection, then "find" everything
