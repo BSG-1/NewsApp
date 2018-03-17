@@ -1,188 +1,188 @@
-var express = require("express");
+// var express = require("express");
 
-var router = express.Router();
+// var router = express.Router();
 
-var request = require("request");
+// var request = require("request");
 
-var cheerio = require("cheerio");
+// var cheerio = require("cheerio");
 
-var mongoose = require("mongoose");
+// var mongoose = require("mongoose");
 
-// Set mongoose to leverage built in JavaScript ES6 Promises
-mongoose.Promise = Promise;
+// // Set mongoose to leverage built in JavaScript ES6 Promises
+// mongoose.Promise = Promise;
 
-var Note = require("../models/Note.js");
-var Headline = require("../models/Headline.js");
+// var Note = require("../models/Note.js");
+// var Headline = require("../models/Headline.js");
 
-router.get("/", function(req, res) {
-  res.render("index");
-});
+// router.get("/", function(req, res) {
+//   res.render("index");
+// });
 
-// This will get the articles scraped and saved in db and show them in list.
-router.get("/saved-articles", function(req, res) {
+// // This will get the articles scraped and saved in db and show them in list.
+// router.get("/saved-articles", function(req, res) {
 
-  // Grab every doc in the Articles array
-  Headline.find({}, function(error, doc) {
-    // Log any errors
-    if (error) {
-      console.log(error);
-    }
-    // Or send the doc to the browser as a json object
-    else {
-      var hbsHeadlineObject = {
-        articles: doc
-      };
+//   // Grab every doc in the Articles array
+//   Headline.find({}, function(error, doc) {
+//     // Log any errors
+//     if (error) {
+//       console.log(error);
+//     }
+//     // Or send the doc to the browser as a json object
+//     else {
+//       var hbsHeadlineObject = {
+//         articles: doc
+//       };
 
-      res.render("saved-articles", hbsHeadlineObject);
-    }
-  });
-});
+//       res.render("saved-articles", hbsHeadlineObject);
+//     }
+//   });
+// });
 
-// A GET request to scrape the echojs website
-router.post("/scrape", function(req, res) {
+// // A GET request to scrape the echojs website
+// router.post("/scrape", function(req, res) {
 
-  // First, we grab the body of the html with request
-  request("https://www.npr.org/sections/national/", function(error, response, html) {
-    // Then, we load that into cheerio and save it to $ for a shorthand selector
-    var $ = cheerio.load(html);
+//   // First, we grab the body of the html with request
+//   request("https://www.npr.org/sections/national/", function(error, response, html) {
+//     // Then, we load that into cheerio and save it to $ for a shorthand selector
+//     var $ = cheerio.load(html);
 
-    // Make emptry array for temporarily saving and showing scraped Articles.
-    var results = [];
-    var parentSelector = "article.item";
+//     // Make emptry array for temporarily saving and showing scraped Articles.
+//     var results = [];
+//     var parentSelector = "article.item";
 
-        // // Select each element in the HTML body from which you want information.
-        // // NOTE: Cheerio selectors function similarly to jQuery's selectors,
-        // // but be sure to visit the package's npm page to see how it works
-        // Now, we grab every h2 within an article tag, and do the following
-    $(parentSelector).each(function(i, element) {
-        results.push({
-            url: $(element).find("a").attr("href"),
-            title: $(element).find("h2.title").text(),
-            blurb: $(element).find("p.teaser").text()
-        });
-    });
+//         // // Select each element in the HTML body from which you want information.
+//         // // NOTE: Cheerio selectors function similarly to jQuery's selectors,
+//         // // but be sure to visit the package's npm page to see how it works
+//         // Now, we grab every h2 within an article tag, and do the following
+//     $(parentSelector).each(function(i, element) {
+//         results.push({
+//             url: $(element).find("a").attr("href"),
+//             title: $(element).find("h2.title").text(),
+//             blurb: $(element).find("p.teaser").text()
+//         });
+//     });
 
-    console.log("Scraped Articles object built nicely: " + results);
+//     console.log("Scraped Articles object built nicely: " + results);
     
-    var hbsArticleObject = {
-        articles: scrapedArticles
-    };
+//     var hbsArticleObject = {
+//         articles: scrapedArticles
+//     };
 
-    res.render("index", hbsArticleObject);
+//     res.render("index", hbsArticleObject);
 
-  });
-});
+//   });
+// });
 
-router.post("/save", function(req, res) {
+// router.post("/save", function(req, res) {
 
-  console.log("This is the title: " + req.body.title);
+//   console.log("This is the title: " + req.body.title);
 
-  var newArticleObject = {};
+//   var newArticleObject = {};
 
-  newArticleObject.title = req.body.title;
+//   newArticleObject.title = req.body.title;
 
-  newArticleObject.link = req.body.link;
+//   newArticleObject.link = req.body.link;
 
-  var entry = new Article(newArticleObject);
+//   var entry = new Article(newArticleObject);
 
-  console.log("We can save the article: " + entry);
+//   console.log("We can save the article: " + entry);
 
-  // Now, save that entry to the db
-  entry.save(function(err, doc) {
-    // Log any errors
-    if (err) {
-      console.log(err);
-    }
-    // Or log the doc
-    else {
-      console.log(doc);
-    }
-  });
+//   // Now, save that entry to the db
+//   entry.save(function(err, doc) {
+//     // Log any errors
+//     if (err) {
+//       console.log(err);
+//     }
+//     // Or log the doc
+//     else {
+//       console.log(doc);
+//     }
+//   });
 
-  res.redirect("/savedarticles");
+//   res.redirect("/savedarticles");
 
-});
+// });
 
-router.get("/delete/:id", function(req, res) {
+// router.get("/delete/:id", function(req, res) {
 
-  console.log("ID is getting read for delete" + req.params.id);
+//   console.log("ID is getting read for delete" + req.params.id);
 
-  console.log("Able to activate delete function.");
+//   console.log("Able to activate delete function.");
 
-  Article.findOneAndRemove({"_id": req.params.id}, function (err, offer) {
-    if (err) {
-      console.log("Not able to delete:" + err);
-    } else {
-      console.log("Able to delete, Yay");
-    }
-    res.redirect("/savedarticles");
-  });
-});
+//   Article.findOneAndRemove({"_id": req.params.id}, function (err, offer) {
+//     if (err) {
+//       console.log("Not able to delete:" + err);
+//     } else {
+//       console.log("Able to delete, Yay");
+//     }
+//     res.redirect("/savedarticles");
+//   });
+// });
 
-router.get("/notes/:id", function(req, res) {
+// router.get("/notes/:id", function(req, res) {
 
-  console.log("ID is getting read for delete" + req.params.id);
+//   console.log("ID is getting read for delete" + req.params.id);
 
-  console.log("Able to activate delete function.");
+//   console.log("Able to activate delete function.");
 
-  Note.findOneAndRemove({"_id": req.params.id}, function (err, doc) {
-    if (err) {
-      console.log("Not able to delete:" + err);
-    } else {
-      console.log("Able to delete, Yay");
-    }
-    res.send(doc);
-  });
-});
+//   Note.findOneAndRemove({"_id": req.params.id}, function (err, doc) {
+//     if (err) {
+//       console.log("Not able to delete:" + err);
+//     } else {
+//       console.log("Able to delete, Yay");
+//     }
+//     res.send(doc);
+//   });
+// });
 
-// This will grab an article by it's ObjectId
-router.get("/articles/:id", function(req, res) {
+// // This will grab an article by it's ObjectId
+// router.get("/articles/:id", function(req, res) {
 
-  console.log("ID is getting read" + req.params.id);
+//   console.log("ID is getting read" + req.params.id);
 
-  // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-  Article.findOne({"_id": req.params.id})
+//   // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
+//   Article.findOne({"_id": req.params.id})
 
-  .populate('notes')
+//   .populate('notes')
 
-  .exec(function(err, doc) {
-    if (err) {
-      console.log("Not able to find article and get notes.");
-    }
-    else {
-      console.log("We are getting article and maybe notes? " + doc);
-      res.json(doc);
-    }
-  });
-});
+//   .exec(function(err, doc) {
+//     if (err) {
+//       console.log("Not able to find article and get notes.");
+//     }
+//     else {
+//       console.log("We are getting article and maybe notes? " + doc);
+//       res.json(doc);
+//     }
+//   });
+// });
 
-// Create a new note or replace an existing note
-router.post("/articles/:id", function(req, res) {
+// // Create a new note or replace an existing note
+// router.post("/articles/:id", function(req, res) {
 
-  // Create a new note and pass the req.body to the entry
-  var newNote = new Note(req.body);
-  // And save the new note the db
-  newNote.save(function(error, doc) {
-    // Log any errors
-    if (error) {
-      console.log(error);
-    } 
-    else {
-      // Use the article id to find it and then push note
-      Article.findOneAndUpdate({ "_id": req.params.id }, {$push: {notes: doc._id}}, {new: true, upsert: true})
+//   // Create a new note and pass the req.body to the entry
+//   var newNote = new Note(req.body);
+//   // And save the new note the db
+//   newNote.save(function(error, doc) {
+//     // Log any errors
+//     if (error) {
+//       console.log(error);
+//     } 
+//     else {
+//       // Use the article id to find it and then push note
+//       Article.findOneAndUpdate({ "_id": req.params.id }, {$push: {notes: doc._id}}, {new: true, upsert: true})
 
-      .populate('notes')
+//       .populate('notes')
 
-      .exec(function (err, doc) {
-        if (err) {
-          console.log("Cannot find article.");
-        } else {
-          console.log("On note save we are getting notes? " + doc.notes);
-          res.send(doc);
-        }
-      });
-    }
-  });
-});
-// Export routes for server.js to use.
-module.exports = router;
+//       .exec(function (err, doc) {
+//         if (err) {
+//           console.log("Cannot find article.");
+//         } else {
+//           console.log("On note save we are getting notes? " + doc.notes);
+//           res.send(doc);
+//         }
+//       });
+//     }
+//   });
+// });
+// // Export routes for server.js to use.
+// module.exports = router;

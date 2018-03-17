@@ -10,7 +10,6 @@ var HeadlineSchema = new Schema({
   title: {
     type: String,
     required: true
-    // required: true
   },
   // `link` is required and of type String
   url: {
@@ -19,7 +18,7 @@ var HeadlineSchema = new Schema({
   },
   blurb: {
     type: String,
-    required: true
+    required: false
   },
   notes: [{
       type: Schema.Types.ObjectId,

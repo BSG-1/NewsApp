@@ -79,35 +79,51 @@ app.get("/scrape", function(req, res){
         }
         console.log("saved to DB");
     
-        res.send(results);
+        res.render('index', {title: 'NPR news scraper!', results});
     })    
 });
 
 //--------------------------------------------------------------------------------------------//
 
-// app.get("/save-this-article", function(req, res){
-//     console.log("article saved");
-//     db.Note.create(req.body)
-//     .then(function(dbNote) {
-//       // If a Note was created successfully, find one User (there's only one) and push the new Note's _id to the User's `notes` array
-//       // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
-//       // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-//       return db.Headline.findOneAndUpdate({}, { $push: { notes: dbNote._id } }, { new: true });
-//     })
-//     .then(function(dbUser) {
-//       // If the User was updated successfully, send it back to the client
-//       res.json(dbUser);
-//     })
-//     .catch(function(err) {
-//       // If an error occurs, send it back to the client
-//       res.json(err);
-//     });
-// });
+//save articles
+app.post('/save', function(req, res) {
+    // console.log("this is the title: " + req.body.title);
+    // console.log("this is the url: " + req.body.url);
+    // console.log("this is the blurb: " + req.body.blurb)
+    var newArticleObject = {
+        title: req.body.title,
+        url: req.body.url,
+        blurb: req.body.blurb
+    };
+    var entry = new db.Headline(newArticleObject);
+    // console.log("We saved the whole article: " + entry);
+    //now save to the db
+    entry.save(function(err, doc){
+        if (err){
+            console.log(err);
+        }
+        else {
+            console.log(doc)
+        }
+    });
+    res.render("/saved-articles");
+});
 
-// //display saved articles
-// app.post("/save-this-article", function(req, res){
+//--------------------------------------------------------------------------------------------//
 
-// });
+app.get('/saved-articles', function(req, res){
+    Headline.find({},function(error, doc){
+        if (error){
+            console.log(error);
+        }
+        else {
+            var hbsArticleObject = {
+                articles: doc
+            }
+            res.render("saved-articles", hbsArticleObject)
+        }
+    })
+})
 
 // Start the server
 app.listen(PORT, function() {
