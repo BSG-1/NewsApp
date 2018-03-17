@@ -22,10 +22,16 @@ $(document).ready(function(){
         });
     });
 
-    $(".btnSave").on("click", function(e){
+    $("#btnSave").on("click", function(e){
         e.preventDefault();
         console.log("clicked");
-        this.value() = 'saved';
+        if (this.value()==="Save"){
+            var newVal = this.value() = 'Saved';
+            this.text(newVal);
+        } 
+        else {
+
+        }
     });
 
     

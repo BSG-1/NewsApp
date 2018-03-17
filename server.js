@@ -95,35 +95,45 @@ app.post('/save', function(req, res) {
         url: req.body.url,
         blurb: req.body.blurb
     };
-    var entry = new db.Headline(newArticleObject);
+    db.Headline.create(newArticleObject)
+        .then(function(dbarticle){
+            res.redirect("/saved");
+        })
+        .catch(function(err){
+            return res.json(err);
+            
+        })
+        
     // console.log("We saved the whole article: " + entry);
     //now save to the db
-    entry.save(function(err, doc){
-        if (err){
-            console.log(err);
-        }
-        else {
-            console.log(doc)
-        }
-    });
-    res.render("/saved-articles");
+    // db.Headline.entry.save(function(err, doc){
+    //     if (err){
+    //         console.log(err);
+    //     }
+    //     else {
+    //         console.log(doc)
+    //     }
+    // });
+    //res.render("/saved");
 });
 
 //--------------------------------------------------------------------------------------------//
 
-app.get('/saved-articles', function(req, res){
-    Headline.find({},function(error, doc){
-        if (error){
-            console.log(error);
+app.get('/saved', function(req, res){
+    var results = [];
+    db.Headline.find({},function(error, newArticleObject){
+        for (let i = 0; i < newArticleObject.length; i++) {
+            const element = newArticleObject[i];
+            results.push({
+                id: element._id,
+                title: element.title,
+                url: element.url,
+                blurb: element.blurb
+            })
         }
-        else {
-            var hbsArticleObject = {
-                articles: doc
-            }
-            res.render("saved-articles", hbsArticleObject)
-        }
-    })
-})
+        res.render('saved', {title: 'Your NPR saved articles!', results, message: "DB Articles!"});
+    });
+});
 
 // Start the server
 app.listen(PORT, function() {
