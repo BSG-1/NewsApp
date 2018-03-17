@@ -71,12 +71,12 @@ app.get("/scrape", function(req, res){
                 blurb: $(element).find("p.teaser").text()
             });
         });
-
-        for (let i = 0; i < results.length; i++) {
-            db.Headline.create({"title": results[i].title, "blurb": results[i].blurb, "url": results[i].url}, function(err, docs){
+        // //save to the DB
+        // for (let i = 0; i < results.length; i++) {
+        //     db.Headline.create({"title": results[i].title, "blurb": results[i].blurb, "url": results[i].url}, function(err, docs){
                 
-            });
-        }
+        //     });
+        // }
         console.log("saved to DB");
     
         res.render('index', {title: 'NPR news scraper!', results});
@@ -85,7 +85,7 @@ app.get("/scrape", function(req, res){
 
 //--------------------------------------------------------------------------------------------//
 
-//save articles
+//save articles to db
 app.post('/save', function(req, res) {
     // console.log("this is the title: " + req.body.title);
     // console.log("this is the url: " + req.body.url);
@@ -97,28 +97,16 @@ app.post('/save', function(req, res) {
     };
     db.Headline.create(newArticleObject)
         .then(function(dbarticle){
-            res.redirect("/saved");
+            // res.redirect("/saved");
         })
         .catch(function(err){
-            return res.json(err);
-            
+            return res.json(err);      
         })
-        
-    // console.log("We saved the whole article: " + entry);
-    //now save to the db
-    // db.Headline.entry.save(function(err, doc){
-    //     if (err){
-    //         console.log(err);
-    //     }
-    //     else {
-    //         console.log(doc)
-    //     }
-    // });
-    //res.render("/saved");
 });
 
 //--------------------------------------------------------------------------------------------//
 
+// retrieve saved articles from db
 app.get('/saved', function(req, res){
     var results = [];
     db.Headline.find({},function(error, newArticleObject){
