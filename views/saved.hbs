@@ -22,7 +22,7 @@
                               </div>
                               <div class="col-xs-3">
                                 <form action="/delete/{{this.id}}" method="POST">
-                                  <button type="submit" class="btn btn-default pull-right">DELETE</button>
+                                  <button type="submit" class="btn btn-default pull-right">Delete</button>
                                 </form>
                               </div>
                           </div>
@@ -42,29 +42,31 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" id="deletenote" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel">Notes for Article <span id="articleID"></span></h4>
       </div>
       <div class="modal-body">
-        {{!-- <div id="notes"></div> --}}
-        <form action="/articles" method="post">
+        <div id="notes">
+
+        </div>
+        {{!-- <form action="/articles" method="post">
             <div class="form-group">
                 <label for="comment">Note:</label>
                 <textarea class="form-control" rows="5" id="comment" placeholder="Write your note here"></textarea>              
             </div>
-            <button type="submit" class="btn btn-primary">Save</button>           
-        </form>
+            <button id="btnSave" type="submit" class="btn btn-primary">Save</button>           
+        </form> --}}
       </div>
     </div>
   </div>
 </div>
 
-
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 
 <!--  -->
 <script>
-$(document).on("click", "#modalbutton", function() {
+  var thisId;
+$("#modalbutton").on("click", function() {
   // Empty the notes from the note section
   $("#notes").empty();
   // Save the id from the button tag
@@ -85,14 +87,16 @@ $(document).on("click", "#modalbutton", function() {
           for (var i = 0; i < data.notes.length; i++) {
             $('#notelist').append("<li id='" + data.notes[i]._id + "'>" + data.notes[i].body + " " +
             "<button data-id='" + data.notes[i]._id +
-            "' id='deletenote'>X</button></li>");
+            "' id='deletenote'>x</button></li>");
           }
         $('#actualnotes').append("</ul>");
       } else {
-        $('#actualnotes').text("There aren't any notes yet.");
+        $('#actualnotes').text("Your new notes will be displayed here");
       }
+
+
       // A textarea to add a new note body
-      $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
+      $("#notes").append("<textarea class='form-control' id='bodyinput' name='body'></textarea>");
       // A button to submit a new note, with the id of the article saved to it
       $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
     });
@@ -100,24 +104,24 @@ $(document).on("click", "#modalbutton", function() {
 // When you click the savenote button
 $(document).on("click", "#savenote", function() {
   // Grab the id associated with the article from the submit button
-  var thisId = $(this).attr("data-id");
+  var id = $(this).attr("data-id");
+  console.log(id);
+  var obj = $("#bodyinput").val("");
+  //console logs out the note from the body of the note
+  console.log(obj);
   // Run a POST request to change the note, using what's entered in the inputs
   $.ajax({
     method: "POST",
-    url: "/articles/" + thisId,
-    data: {
+    url: "/articles/" + id,
+    data: [{
       // Value taken from note textarea
-      body: $("#bodyinput").val()
+      body: obj
+    }],
+    success: function(data){
+      console.log(data);
+      $("#notelist").empty();
     }
   })
-    // With that done
-    .done(function(data) {
-      $("#notelist").empty();
-      for (var i = 0; i < data.notes.length; i++) {
-        $("#notelist").append("<li id='" + data.notes[i]._id + "'>" + data.notes[i].body + " " + "<button data-id='" + data.notes[i]._id +
-        "' id='deletenote'>X</button></li>");
-      }
-    });
   // Also, remove the values entered in the input and textarea for note entry
   $("#bodyinput").val("");
 });

@@ -38,9 +38,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // By default mongoose uses callbacks for async queries, we're setting it to use promises (.then syntax) instead
 // Connect to the Mongo DB
 
-mongoose.Promise = Promise;
+
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
-mongoose.connect(MONGODB_URI, {});
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI, {
+
+});
 
 //scraping method
 app.get("/scrape", function(req, res){
@@ -85,7 +88,7 @@ app.get("/scrape", function(req, res){
 
 //--------------------------------------------------------------------------------------------//
 
-//save articles to db
+//save articles to db by clicking on "save this article"
 app.post('/save', function(req, res) {
     // console.log("this is the title: " + req.body.title);
     // console.log("this is the url: " + req.body.url);
@@ -97,7 +100,8 @@ app.post('/save', function(req, res) {
     };
     db.Headline.create(newArticleObject)
         .then(function(dbarticle){
-            // res.redirect("/saved");
+            console.log("saved a headline!")
+            //res.redirect("/saved");
         })
         .catch(function(err){
             return res.json(err);      
@@ -105,8 +109,7 @@ app.post('/save', function(req, res) {
 });
 
 //--------------------------------------------------------------------------------------------//
-
-// retrieve saved articles from db
+//find all saved headlines and display to "/saved"
 app.get('/saved', function(req, res){
     var results = [];
     db.Headline.find({},function(error, newArticleObject){
@@ -123,6 +126,77 @@ app.get('/saved', function(req, res){
     });
 });
 
+//--------------------------------------------------------------------------------------------//
+
+//delete certain headlines
+app.post("/delete/:id", function(req, res){
+    var id = req.params.id;
+    console.log("Article ID: " + id);
+
+    db.Headline.findOneAndRemove({"_id": id}, function(err, doc){
+        if (err){
+            console.log("Error with delete", err)
+        }
+        else {
+            console.log("Deleted headline", doc);
+            res.redirect("/saved");
+        }
+    })
+});
+
+//--------------------------------------------------------------------------------------------//
+
+//retrieve other notes from the db associated from a certain headline
+app.get("/articles/:id", function(req, res){
+    console.log("/articles", req.params.id);
+    var id = req.params.id;
+
+    db.Headline.findOne({"_id": id})
+    .populate("notes")
+    .then(function(doc){
+        console.log(doc)
+        res.json(doc);
+    }).catch(function(err){
+        res.json(err);
+    })
+});
+
+//--------------------------------------------------------------------------------------------//
+
+//save new Note to the db and associate it with a article
+app.post("/articles/:id", function(req, res){
+    var articleId = req.params.id
+    db.Note.create(req.body)
+        .then(function(dbNote){
+
+            return db.Headline.findOneAndUpdate({"_id": articleId}, {$push:{notes:dbNote._id}}, { new:true });
+        })
+        .then(function(newArticleObject){
+            console.log("Note with article: " + newArticleObject);
+            res.redirect("/articles");
+        })
+        .catch(function(err){
+            console.log(err);
+            res.json(err);
+        })
+})
+
+//--------------------------------------------------------------------------------------------//
+
+//"populated user" route
+app.get("/articles", function(req, res){
+    db.Headline.find({})
+    .populate("notes")
+    .then(function(db){
+        console.log(db);
+        res.json(db);
+    })
+    .catch(function(err){
+        res.json(err)
+    })
+});
+
+//--------------------------------------------------------------------------------------------//
 // Start the server
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
