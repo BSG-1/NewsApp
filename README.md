@@ -1,4 +1,4 @@
-## NewsApp
+# NewsApp
 
 ## What is NewsApp?
 check it out here:  [NewsApp](https://enigmatic-garden-27179.herokuapp.com/)
