@@ -39,9 +39,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Connect to the Mongo DB
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 mongoose.Promise = Promise;
-mongoose.connect(MONGODB_URI, {
-    useMongoClient: true
-});
+mongoose.connect(MONGODB_URI, {});
 
 //scraping method
 app.get("/scrape", function(req, res){
