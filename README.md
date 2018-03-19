@@ -17,4 +17,3 @@ I do not consider this web application complete at this time. Some up-coming fea
 
 ## Changelog Timeline
 * 18-Mar-2018: initial deployment
-}
